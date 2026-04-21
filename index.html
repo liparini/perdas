@@ -308,8 +308,8 @@
             <label>Setor da Perda *</label>
             <select id="f-setor" required>
               <option value="">Selecione...</option>
-              <option>Produção</option><option>Logística</option><option>Qualidade</option>
-              <option>Almoxarifado</option><option>Manutenção</option><option>Administrativo</option><option>Outro</option>
+              <option>Montagem</option><option>Surfaçagem</option><option>Comercial</option>
+              <option>Estoque</option><option>Financeiro</option>
             </select>
           </div>
           <div class="form-group"><label>Responsável pela Perda *</label><input type="text" id="f-resp" placeholder="Nome do colaborador" required/></div>
@@ -340,8 +340,8 @@
           <label>Setor</label>
           <select id="r-setor">
             <option value="">Todos</option>
-            <option>Produção</option><option>Logística</option><option>Qualidade</option>
-            <option>Almoxarifado</option><option>Manutenção</option><option>Administrativo</option><option>Outro</option>
+            <option>Montagem</option><option>Surfaçagem</option><option>Comercial</option>
+            <option>Estoque</option><option>Financeiro</option>
           </select>
         </div>
         <div class="form-group"><label>Responsável</label><input type="text" id="r-resp" placeholder="Nome..."/></div>
@@ -373,8 +373,8 @@
           <label>Setor</label>
           <select id="rep-setor">
             <option value="">Todos</option>
-            <option>Produção</option><option>Logística</option><option>Qualidade</option>
-            <option>Almoxarifado</option><option>Manutenção</option><option>Administrativo</option><option>Outro</option>
+            <option>Montagem</option><option>Surfaçagem</option><option>Comercial</option>
+            <option>Estoque</option><option>Financeiro</option>
           </select>
         </div>
         <button class="btn btn-primary" onclick="generateReport()">Gerar</button>
@@ -680,7 +680,7 @@ window.editRecord = async function(id){
       <div class="form-group"><label>Nova OS</label><input id="e-os2" value="${d.osNova||''}"/></div>
       <div class="form-group"><label>Data</label><input type="date" id="e-dt" value="${d.data||''}"/></div>
       <div class="form-group"><label>Setor</label>
-        <select id="e-st">${['Produção','Logística','Qualidade','Almoxarifado','Manutenção','Administrativo','Outro'].map(s=>`<option${d.setor===s?' selected':''}>${s}</option>`).join('')}</select>
+        <select id="e-st">${['Montagem','Surfaçagem','Comercial','Estoque','Financeiro'].map(s=>`<option${d.setor===s?' selected':''}>${s}</option>`).join('')}</select>
       </div>
       <div class="form-group"><label>Responsável</label><input id="e-re" value="${d.responsavel||''}"/></div>
       <div class="form-group"><label>Valor Perdido</label><input type="number" step=".01" id="e-vp" value="${d.valorPerdido||0}"/></div>
