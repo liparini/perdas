@@ -309,7 +309,7 @@
             <select id="f-setor" required>
               <option value="">Selecione...</option>
               <option>Montagem</option><option>Surfaçagem</option><option>Comercial</option>
-              <option>Estoque</option><option>Financeiro</option>
+              <option>Estoque</option><option>Financeiro</option><option>Fabricante</option><option>Terceirizado</option>
             </select>
           </div>
           <div class="form-group"><label>Responsável pela Perda *</label><input type="text" id="f-resp" placeholder="Nome do colaborador" required/></div>
@@ -341,7 +341,7 @@
           <select id="r-setor">
             <option value="">Todos</option>
             <option>Montagem</option><option>Surfaçagem</option><option>Comercial</option>
-            <option>Estoque</option><option>Financeiro</option>
+            <option>Estoque</option><option>Financeiro</option><option>Fabricante</option><option>Terceirizado</option>
           </select>
         </div>
         <div class="form-group"><label>Responsável</label><input type="text" id="r-resp" placeholder="Nome..."/></div>
@@ -374,7 +374,7 @@
           <select id="rep-setor">
             <option value="">Todos</option>
             <option>Montagem</option><option>Surfaçagem</option><option>Comercial</option>
-            <option>Estoque</option><option>Financeiro</option>
+            <option>Estoque</option><option>Financeiro</option><option>Fabricante</option><option>Terceirizado</option>
           </select>
         </div>
         <button class="btn btn-primary" onclick="generateReport()">Gerar</button>
@@ -383,6 +383,19 @@
     </div>
     <div id="reportOutput" style="display:none">
       <div class="stats-grid" id="rep-stats"></div>
+
+      <!-- Totalizador por Responsável -->
+      <div class="panel">
+        <div class="panel-title"><span class="dot"></span>Totalizador por Responsável</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Responsável</th><th>Qtd. Ocorrências</th><th>Valor Perdido</th><th>Frete</th><th>Recebido</th><th>% do Total</th></tr></thead>
+            <tbody id="rep-by-resp"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Detalhamento -->
       <div class="panel">
         <div class="report-header">
           <div class="panel-title" style="margin:0"><span class="dot"></span>Detalhamento</div>
@@ -549,19 +562,32 @@ window.showPage = function(id){
 document.getElementById('lossForm').addEventListener('submit', async e=>{
   e.preventDefault();
   if(!CP.canAdd){ toast('Sem permissão para incluir.','error'); return; }
+
   const btn=document.getElementById('submitBtn');
   btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Salvando...';
+
+  /* 1. Tenta upload do anexo (se houver) — erro aqui não impede salvar */
   const file=document.getElementById('f-file').files[0];
-  let anexoUrl='',anexoNome='';
-  try{
-    if(file){
-      if(file.size>5*1024*1024){ toast('Arquivo maior que 5MB!','error'); btn.disabled=false; btn.innerHTML='<span>💾 Salvar Registro</span>'; return; }
-      const r=sRef(storage,`anexos/${Date.now()}_${file.name}`);
-      await uploadBytes(r,file);
-      anexoUrl=await getDownloadURL(r);
-      anexoNome=file.name;
+  let anexoUrl='', anexoNome='';
+  if(file){
+    if(file.size>5*1024*1024){
+      toast('Arquivo maior que 5MB — registro será salvo sem anexo.','info');
+    } else {
+      try{
+        const r=sRef(storage,`anexos/${Date.now()}_${file.name}`);
+        await uploadBytes(r,file);
+        anexoUrl=await getDownloadURL(r);
+        anexoNome=file.name;
+      }catch(uploadErr){
+        console.warn('Upload do anexo falhou:', uploadErr);
+        toast('Anexo não pôde ser enviado — registro será salvo sem ele.','info');
+      }
     }
-    await addDoc(collection(db,COLL),{
+  }
+
+  /* 2. Salva no Firestore */
+  try{
+    const payload={
       osOriginal:  document.getElementById('f-os1').value.trim(),
       osNova:      document.getElementById('f-os2').value.trim(),
       data:        document.getElementById('f-dt').value,
@@ -573,13 +599,23 @@ document.getElementById('lossForm').addEventListener('submit', async e=>{
       obs:         document.getElementById('f-ob').value.trim(),
       anexoUrl, anexoNome,
       criadoEm:  Timestamp.now(),
-      criadoPor: CU.email          /* armazenado no DB, não exibido na UI */
-    });
+      criadoPor: CU.email
+    };
+    console.log('Salvando payload:', payload);
+    await addDoc(collection(db,COLL), payload);
     toast('✅ Registro salvo com sucesso!');
     clearForm();
     showPage('dashboard');
-  }catch(err){ console.error(err); toast('Erro ao salvar: '+err.message,'error'); }
-  finally{ btn.disabled=false; btn.innerHTML='<span>💾 Salvar Registro</span>'; }
+  }catch(err){
+    console.error('Erro Firestore:', err);
+    let msg='Erro ao salvar.';
+    if(err.code==='permission-denied') msg='Permissão negada no banco de dados. Verifique as regras do Firestore.';
+    else if(err.code==='unavailable')  msg='Sem conexão com o banco de dados. Verifique sua internet.';
+    else msg=`Erro: ${err.message}`;
+    toast(msg,'error');
+  }finally{
+    btn.disabled=false; btn.innerHTML='<span>💾 Salvar Registro</span>';
+  }
 });
 
 window.clearForm = ()=>document.getElementById('lossForm').reset();
@@ -680,7 +716,7 @@ window.editRecord = async function(id){
       <div class="form-group"><label>Nova OS</label><input id="e-os2" value="${d.osNova||''}"/></div>
       <div class="form-group"><label>Data</label><input type="date" id="e-dt" value="${d.data||''}"/></div>
       <div class="form-group"><label>Setor</label>
-        <select id="e-st">${['Montagem','Surfaçagem','Comercial','Estoque','Financeiro'].map(s=>`<option${d.setor===s?' selected':''}>${s}</option>`).join('')}</select>
+        <select id="e-st">${['Montagem','Surfaçagem','Comercial','Estoque','Financeiro','Fabricante','Terceirizado'].map(s=>`<option${d.setor===s?' selected':''}>${s}</option>`).join('')}</select>
       </div>
       <div class="form-group"><label>Responsável</label><input id="e-re" value="${d.responsavel||''}"/></div>
       <div class="form-group"><label>Valor Perdido</label><input type="number" step=".01" id="e-vp" value="${d.valorPerdido||0}"/></div>
@@ -746,20 +782,69 @@ window.generateReport = async function(){
     if(!docs.length){
       out.style.display='block';
       document.getElementById('rep-stats').innerHTML=`<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📭</div>Nenhum registro no período</div>`;
+      document.getElementById('rep-by-resp').innerHTML='';
       document.getElementById('rep-tbody').innerHTML='';
       document.getElementById('rep-tfoot').innerHTML='';
       document.getElementById('printBtn').style.display='none';
       return;
     }
+
+    /* Totais gerais */
     let tl=0,tf=0,tr=0;
     docs.forEach(d=>{tl+=d.valorPerdido||0;tf+=d.frete||0;tr+=d.recebido||0;});
+
     document.getElementById('rep-stats').innerHTML=`
       <div class="stat-card loss"><div class="stat-label">Total Perdido</div><div class="stat-value sv-r">${fmt(tl)}</div></div>
       <div class="stat-card freight"><div class="stat-label">Despesas Frete</div><div class="stat-value sv-y">${fmt(tf)}</div></div>
       <div class="stat-card received"><div class="stat-label">Recebido do Cliente</div><div class="stat-value sv-g">${fmt(tr)}</div></div>
       <div class="stat-card balance"><div class="stat-label">Saldo Líquido</div><div class="stat-value sv-o">${fmt(tr-tl-tf)}</div></div>
       <div class="stat-card count"><div class="stat-label">Registros</div><div class="stat-value">${docs.length}</div></div>`;
+
     document.getElementById('rep-period').textContent=`Período: ${fmtDate(ini)} a ${fmtDate(fim)}${setor?' | Setor: '+setor:''}`;
+
+    /* ── Totalizador por Responsável ── */
+    const byResp={};
+    docs.forEach(d=>{
+      const k=d.responsavel||'(sem nome)';
+      if(!byResp[k]) byResp[k]={qtd:0,vp:0,fr:0,rc:0};
+      byResp[k].qtd++;
+      byResp[k].vp+=d.valorPerdido||0;
+      byResp[k].fr+=d.frete||0;
+      byResp[k].rc+=d.recebido||0;
+    });
+
+    /* Ordena pelo maior valor perdido */
+    const respRows=Object.entries(byResp).sort((a,b)=>b[1].vp-a[1].vp);
+
+    document.getElementById('rep-by-resp').innerHTML=respRows.map(([nome,v],i)=>{
+      const pct = tl>0 ? ((v.vp/tl)*100).toFixed(1) : '0.0';
+      const barW = tl>0 ? Math.round((v.vp/tl)*100) : 0;
+      return `<tr>
+        <td style="font-weight:600">${nome}</td>
+        <td style="text-align:center">${v.qtd}</td>
+        <td style="color:var(--red);font-weight:700">${fmt(v.vp)}</td>
+        <td style="color:var(--warning)">${fmt(v.fr)}</td>
+        <td style="color:var(--success)">${fmt(v.rc)}</td>
+        <td style="min-width:130px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:${barW}%;background:var(--red);border-radius:3px;transition:width .4s"></div>
+            </div>
+            <span style="font-size:.78rem;color:var(--muted);white-space:nowrap">${pct}%</span>
+          </div>
+        </td>
+      </tr>`;
+    }).join('')+`
+      <tr style="border-top:2px solid var(--border);background:var(--surface2);font-weight:700">
+        <td style="padding:10px 12px">TOTAL</td>
+        <td style="padding:10px 12px;text-align:center">${docs.length}</td>
+        <td style="padding:10px 12px;color:var(--red)">${fmt(tl)}</td>
+        <td style="padding:10px 12px;color:var(--warning)">${fmt(tf)}</td>
+        <td style="padding:10px 12px;color:var(--success)">${fmt(tr)}</td>
+        <td style="padding:10px 12px"></td>
+      </tr>`;
+
+    /* ── Detalhamento ── */
     document.getElementById('rep-tbody').innerHTML=docs.map((d,i)=>`<tr>
       <td class="mono" style="color:var(--muted)">${i+1}</td>
       <td>${fmtDate(d.data)}</td><td class="mono">${d.osOriginal||'-'}</td><td class="mono">${d.osNova||'-'}</td>
@@ -769,6 +854,7 @@ window.generateReport = async function(){
       <td style="color:var(--success)">${fmt(d.recebido)}</td>
       <td style="max-width:180px;white-space:normal;font-size:.78rem;color:var(--muted)">${d.obs||'-'}</td>
     </tr>`).join('');
+
     document.getElementById('rep-tfoot').innerHTML=`<tr style="border-top:2px solid var(--accent)">
       <td colspan="6" style="padding:12px;text-align:right;color:var(--muted);font-size:.83rem">TOTAIS</td>
       <td style="padding:12px;color:var(--red)">${fmt(tl)}</td>
@@ -776,6 +862,7 @@ window.generateReport = async function(){
       <td style="padding:12px;color:var(--success)">${fmt(tr)}</td>
       <td></td>
     </tr>`;
+
     out.style.display='block';
     document.getElementById('printBtn').style.display='inline-flex';
   }catch(err){ console.error(err); toast('Erro ao gerar relatório','error'); }
