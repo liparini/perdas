@@ -1,78 +1,139 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Controle de Perdas</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
-    :root {
+    :root{
       --bg:#0d0f14;--surface:#14171f;--surface2:#1c2030;--border:#252a38;
       --accent:#e8441a;--accent2:#f07340;--success:#1ecb7b;--warning:#f5c518;
-      --text:#eef0f5;--text-muted:#7a8099;--red-loss:#ff3b3b;
-      --font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
+      --text:#eef0f5;--muted:#7a8099;--red:#ff3b3b;
+      --fd:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
     }
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 10%,rgba(232,68,26,.07) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(240,115,64,.05) 0%,transparent 50%);pointer-events:none;z-index:0}
+    body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;
+      background:radial-gradient(ellipse at 15% 10%,rgba(232,68,26,.08) 0%,transparent 50%),
+                 radial-gradient(ellipse at 85% 85%,rgba(240,115,64,.05) 0%,transparent 50%);
+      pointer-events:none;z-index:0}
 
-    /* LOGIN */
-    #loginScreen{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:var(--bg)}
-    .login-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:400px;box-shadow:0 24px 80px rgba(0,0,0,.5)}
-    .login-brand{display:flex;align-items:center;gap:12px;margin-bottom:2rem}
-    .login-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
-    .login-brand-text{font-family:var(--font-display);font-size:1.15rem;font-weight:800;line-height:1.2}
-    .login-brand-sub{font-size:.73rem;color:var(--text-muted)}
-    .login-title{font-family:var(--font-display);font-size:1.45rem;font-weight:700;margin-bottom:.35rem}
-    .login-sub{font-size:.84rem;color:var(--text-muted);margin-bottom:1.6rem}
-    .login-err{background:rgba(255,59,59,.12);border:1px solid rgba(255,59,59,.3);color:var(--red-loss);border-radius:8px;padding:10px 14px;font-size:.84rem;margin-bottom:1rem;display:none}
-    .login-info{margin-top:1.4rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:.74rem;color:var(--text-muted);line-height:1.7}
-    .login-info strong{color:var(--text);display:block;margin-bottom:5px}
+    /* ── LOGIN ── */
+    #loginScreen{
+      position:fixed;inset:0;z-index:999;
+      display:flex;align-items:center;justify-content:center;
+      background:var(--bg);
+    }
+    .login-card{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:24px;padding:3rem 2.5rem;
+      width:100%;max-width:380px;
+      box-shadow:0 32px 80px rgba(0,0,0,.6);
+      text-align:center;
+    }
+    .login-emblem{
+      width:72px;height:72px;margin:0 auto 1.5rem;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      border-radius:20px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:34px;
+      box-shadow:0 8px 32px rgba(232,68,26,.35);
+    }
+    .login-title{font-family:var(--fd);font-size:1.55rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.4rem}
+    .login-sub{font-size:.84rem;color:var(--muted);margin-bottom:2.2rem;line-height:1.5}
+    .login-err{
+      background:rgba(255,59,59,.12);border:1px solid rgba(255,59,59,.3);
+      color:var(--red);border-radius:10px;padding:11px 16px;
+      font-size:.83rem;margin-bottom:1.2rem;display:none;text-align:left;
+    }
 
-    /* HEADER */
-    header{position:sticky;top:0;z-index:100;background:rgba(13,15,20,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px}
-    .logo{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;font-size:1.1rem;letter-spacing:-.02em}
+    /* Botão Google */
+    .btn-google{
+      display:flex;align-items:center;justify-content:center;gap:12px;
+      width:100%;padding:13px 20px;
+      background:#fff;color:#1f1f1f;
+      border:none;border-radius:12px;
+      font-family:var(--fb);font-size:.95rem;font-weight:600;
+      cursor:pointer;
+      transition:all .2s;
+      box-shadow:0 2px 8px rgba(0,0,0,.25);
+    }
+    .btn-google:hover{background:#f5f5f5;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+    .btn-google:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .btn-google svg{flex-shrink:0}
+
+    .login-note{
+      margin-top:1.6rem;
+      font-size:.73rem;color:var(--muted);line-height:1.6;
+    }
+    .login-note strong{color:var(--text)}
+
+    /* ── HEADER ── */
+    header{
+      position:sticky;top:0;z-index:100;
+      background:rgba(13,15,20,.93);backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--border);
+      padding:0 2rem;height:64px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .logo{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-weight:800;font-size:1.1rem;letter-spacing:-.02em}
     .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
-    .header-right{display:flex;align-items:center;gap:1rem}
-    .user-pill{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 12px 5px 8px;font-size:.8rem}
-    .user-avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
-    .av-admin{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-    .av-op{background:linear-gradient(135deg,#3b82f6,#6366f1);color:#fff}
-    .role-badge{font-size:.64rem;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.04em}
+    .nav-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px}
+    .nav-tab{padding:6px 16px;border:none;background:none;color:var(--muted);font-family:var(--fb);font-size:.84rem;font-weight:500;border-radius:7px;cursor:pointer;transition:all .2s}
+    .nav-tab.active{background:var(--accent);color:#fff}
+    .nav-tab:disabled{opacity:.32;cursor:not-allowed}
+    .header-right{display:flex;align-items:center;gap:12px}
+
+    /* User chip — mostra só foto + badge de papel */
+    .user-chip{
+      display:flex;align-items:center;gap:8px;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:20px;padding:4px 12px 4px 5px;
+    }
+    .user-photo{
+      width:30px;height:30px;border-radius:50%;
+      object-fit:cover;border:2px solid var(--border);
+      flex-shrink:0;
+    }
+    .user-photo-fallback{
+      width:30px;height:30px;border-radius:50%;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:700;color:#fff;flex-shrink:0;
+    }
+    .role-badge{font-size:.63rem;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.04em;white-space:nowrap}
     .rb-admin{background:rgba(232,68,26,.2);color:var(--accent2);border:1px solid rgba(232,68,26,.3)}
     .rb-op{background:rgba(59,130,246,.2);color:#93c5fd;border:1px solid rgba(59,130,246,.3)}
-    .nav-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px}
-    .nav-tab{padding:6px 16px;border:none;background:none;color:var(--text-muted);font-family:var(--font-body);font-size:.85rem;font-weight:500;border-radius:7px;cursor:pointer;transition:all .2s}
-    .nav-tab.active{background:var(--accent);color:#fff}
-    .nav-tab:disabled{opacity:.35;cursor:not-allowed}
+    .btn-logout{padding:7px 13px;font-size:.78rem}
 
-    /* MAIN */
+    /* ── MAIN ── */
     main{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:2rem}
     .page{display:none}.page.active{display:block}
 
     /* PANELS */
     .panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem}
-    .panel-title{font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;letter-spacing:-.01em}
+    .panel-title{font-family:var(--fd);font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;letter-spacing:-.01em}
     .panel-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
 
     /* FORM */
     .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
     .form-group{display:flex;flex-direction:column;gap:6px}
     .form-group.full{grid-column:1/-1}
-    label{font-size:.74rem;font-weight:500;color:var(--text-muted);letter-spacing:.05em;text-transform:uppercase}
-    input,select,textarea{background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-body);font-size:.9rem;padding:10px 12px;transition:border-color .2s;outline:none;width:100%}
+    label{font-size:.73rem;font-weight:500;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+    input,select,textarea{background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--fb);font-size:.9rem;padding:10px 12px;transition:border-color .2s;outline:none;width:100%}
     input:focus,select:focus,textarea:focus{border-color:var(--accent)}
     input[type="file"]{padding:8px 12px;cursor:pointer}
     textarea{resize:vertical;min-height:80px}
     select option{background:var(--surface2)}
 
     /* BUTTONS */
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;border-radius:8px;font-family:var(--font-body);font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border:none;border-radius:8px;font-family:var(--fb);font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s}
     .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
     .btn-primary:hover{opacity:.9;transform:translateY(-1px)}
     .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
     .btn-secondary:hover{border-color:var(--accent)}
-    .btn-danger{background:rgba(255,59,59,.15);color:var(--red-loss);border:1px solid rgba(255,59,59,.3)}
+    .btn-danger{background:rgba(255,59,59,.15);color:var(--red);border:1px solid rgba(255,59,59,.3)}
     .btn-danger:hover{background:rgba(255,59,59,.25)}
     .btn-success{background:rgba(30,203,123,.15);color:var(--success);border:1px solid rgba(30,203,123,.3)}
     .btn-success:hover{background:rgba(30,203,123,.25)}
@@ -82,21 +143,21 @@
     .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
     .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;position:relative;overflow:hidden}
     .stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
-    .stat-card.loss::after{background:var(--red-loss)}.stat-card.freight::after{background:var(--warning)}
+    .stat-card.loss::after{background:var(--red)}.stat-card.freight::after{background:var(--warning)}
     .stat-card.received::after{background:var(--success)}.stat-card.balance::after{background:var(--accent)}
-    .stat-card.count::after{background:var(--text-muted)}
-    .stat-label{font-size:.71rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-    .stat-value{font-family:var(--font-display);font-size:1.4rem;font-weight:700;letter-spacing:-.02em}
-    .sv-red{color:var(--red-loss)}.sv-yellow{color:var(--warning)}.sv-green{color:var(--success)}.sv-orange{color:var(--accent2)}
+    .stat-card.count::after{background:var(--muted)}
+    .stat-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+    .stat-value{font-family:var(--fd);font-size:1.4rem;font-weight:700;letter-spacing:-.02em}
+    .sv-r{color:var(--red)}.sv-y{color:var(--warning)}.sv-g{color:var(--success)}.sv-o{color:var(--accent2)}
 
     /* TABLE */
     .table-wrap{overflow-x:auto}
     table{width:100%;border-collapse:collapse;font-size:.85rem}
-    thead th{text-align:left;padding:10px 12px;color:var(--text-muted);font-size:.71rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);white-space:nowrap}
+    thead th{text-align:left;padding:10px 12px;color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);white-space:nowrap}
     tbody tr{border-bottom:1px solid rgba(37,42,56,.5);transition:background .15s}
     tbody tr:hover{background:var(--surface2)}
     tbody td{padding:11px 12px;vertical-align:middle;white-space:nowrap}
-    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:.71rem;font-weight:600;letter-spacing:.03em}
+    .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600}
     .badge-s{background:rgba(232,68,26,.15);color:var(--accent2);border:1px solid rgba(232,68,26,.3)}
 
     /* FILTER */
@@ -107,35 +168,35 @@
     #toast{position:fixed;bottom:2rem;right:2rem;z-index:9999;display:flex;flex-direction:column;gap:8px}
     .toast-item{padding:12px 18px;border-radius:10px;font-size:.875rem;font-weight:500;animation:slideIn .3s ease;max-width:320px}
     .toast-item.success{background:var(--success);color:#001a0d}
-    .toast-item.error{background:var(--red-loss);color:#fff}
+    .toast-item.error{background:var(--red);color:#fff}
     .toast-item.info{background:var(--accent);color:#fff}
     @keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
 
     /* MODAL */
-    .modal-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:center;justify-content:center}
+    .modal-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);align-items:center;justify-content:center}
     .modal-overlay.open{display:flex}
     .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:700px;width:95%;max-height:90vh;overflow-y:auto}
     .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
-    .modal-title{font-family:var(--font-display);font-size:1.1rem;font-weight:700}
-    .close-btn{background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;line-height:1}
+    .modal-title{font-family:var(--fd);font-size:1.1rem;font-weight:700}
+    .close-btn{background:none;border:none;color:var(--muted);font-size:1.5rem;cursor:pointer;line-height:1}
     .close-btn:hover{color:var(--text)}
 
     /* MISC */
     .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .loading-row td{text-align:center;padding:3rem;color:var(--text-muted)}
+    .loading-row td{text-align:center;padding:3rem;color:var(--muted)}
     .attach-link{display:inline-flex;align-items:center;gap:4px;color:var(--accent2);text-decoration:none;font-size:.8rem}
     .attach-link:hover{text-decoration:underline}
     .report-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem}
-    .mono{font-family:var(--font-mono)}
-    .empty-state{text-align:center;padding:4rem 2rem;color:var(--text-muted)}
+    .mono{font-family:var(--fm)}
+    .empty-state{text-align:center;padding:4rem 2rem;color:var(--muted)}
     .empty-icon{font-size:3rem;margin-bottom:1rem}
 
     @media(max-width:640px){
-      header{padding:8px 1rem;flex-wrap:wrap;height:auto}
+      header{padding:8px 1rem;flex-wrap:wrap;height:auto;gap:8px}
       main{padding:1rem}
       .logo span{display:none}
-      .nav-tab{padding:6px 10px;font-size:.78rem}
+      .nav-tab{padding:6px 10px;font-size:.77rem}
     }
   </style>
 </head>
@@ -165,39 +226,32 @@
   </div>
 </div>
 
-<!-- LOGIN -->
+<!-- ── LOGIN ── -->
 <div id="loginScreen">
-  <div class="login-box">
-    <div class="login-brand">
-      <div class="login-icon">⚠️</div>
-      <div>
-        <div class="login-brand-text">Controle de Perdas</div>
-        <div class="login-brand-sub">Sistema Interno</div>
-      </div>
-    </div>
-    <div class="login-title">Acesso Restrito</div>
-    <div class="login-sub">Entre com seu e-mail e senha para continuar.</div>
-    <div class="login-err" id="loginError"></div>
-    <div class="form-group" style="margin-bottom:1rem">
-      <label>E-mail</label>
-      <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email"/>
-    </div>
-    <div class="form-group" style="margin-bottom:1.5rem">
-      <label>Senha</label>
-      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/>
-    </div>
-    <button class="btn btn-primary" style="width:100%;justify-content:center" id="loginBtn" onclick="doLogin()">
-      <span>Entrar</span>
+  <div class="login-card">
+    <div class="login-emblem">⚠️</div>
+    <div class="login-title">Controle de Perdas</div>
+    <div class="login-sub">Sistema interno de gestão.<br>Acesso permitido apenas para usuários autorizados.</div>
+    <div class="login-err" id="loginErr"></div>
+    <button class="btn-google" id="btnGoogle" onclick="doGoogleLogin()">
+      <!-- Google G icon -->
+      <svg width="20" height="20" viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        <path fill="none" d="M0 0h48v48H0z"/>
+      </svg>
+      Entrar com Google
     </button>
-    <div class="login-info">
-      <strong>🔒 Usuários autorizados</strong>
-      <b style="color:var(--accent2)">carolline.bhz@gmail.com</b> — Administrador (todas as funções)<br>
-      <b style="color:#93c5fd">atacadoopticomg.financeiro@gmail.com</b> — Operador (incluir e visualizar)
+    <div class="login-note">
+      <strong>Acesso restrito</strong><br>
+      Somente contas Google autorizadas pelo administrador do sistema poderão entrar.
     </div>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ── APP ── -->
 <header id="appHeader" style="display:none">
   <div class="logo">
     <div class="logo-icon">⚠️</div>
@@ -210,12 +264,12 @@
     <button class="nav-tab" onclick="showPage('report')">Relatório</button>
   </nav>
   <div class="header-right">
-    <div class="user-pill">
-      <div class="user-avatar" id="userAvatar"></div>
-      <span id="userLabel" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <!-- Chip: só foto + badge de papel, sem e-mail visível -->
+    <div class="user-chip">
+      <div id="userPhotoWrap"></div>
       <span class="role-badge" id="userRole"></span>
     </div>
-    <button class="btn btn-secondary" style="padding:7px 12px;font-size:.8rem" onclick="doLogout()">Sair</button>
+    <button class="btn btn-secondary btn-logout" onclick="doLogout()">Sair</button>
   </div>
 </header>
 
@@ -224,10 +278,10 @@
   <!-- DASHBOARD -->
   <div class="page active" id="page-dashboard">
     <div class="stats-grid">
-      <div class="stat-card loss"><div class="stat-label">Total Perdido</div><div class="stat-value sv-red" id="st-loss">R$ 0,00</div></div>
-      <div class="stat-card freight"><div class="stat-label">Despesas Frete</div><div class="stat-value sv-yellow" id="st-freight">R$ 0,00</div></div>
-      <div class="stat-card received"><div class="stat-label">Recebido do Cliente</div><div class="stat-value sv-green" id="st-received">R$ 0,00</div></div>
-      <div class="stat-card balance"><div class="stat-label">Saldo Líquido</div><div class="stat-value sv-orange" id="st-balance">R$ 0,00</div></div>
+      <div class="stat-card loss"><div class="stat-label">Total Perdido</div><div class="stat-value sv-r" id="st-loss">R$ 0,00</div></div>
+      <div class="stat-card freight"><div class="stat-label">Despesas Frete</div><div class="stat-value sv-y" id="st-freight">R$ 0,00</div></div>
+      <div class="stat-card received"><div class="stat-label">Recebido do Cliente</div><div class="stat-value sv-g" id="st-received">R$ 0,00</div></div>
+      <div class="stat-card balance"><div class="stat-label">Saldo Líquido</div><div class="stat-value sv-o" id="st-balance">R$ 0,00</div></div>
       <div class="stat-card count"><div class="stat-label">Nº de Registros</div><div class="stat-value" id="st-count">0</div></div>
     </div>
     <div class="panel">
@@ -247,9 +301,9 @@
       <div class="panel-title"><span class="dot"></span>Registrar Nova Perda</div>
       <form id="lossForm">
         <div class="form-grid">
-          <div class="form-group"><label>OS Original *</label><input type="text" id="f-osOriginal" placeholder="Ex: OS-2024-001" required/></div>
-          <div class="form-group"><label>Nova OS</label><input type="text" id="f-osNova" placeholder="Ex: OS-2024-002"/></div>
-          <div class="form-group"><label>Data *</label><input type="date" id="f-data" required/></div>
+          <div class="form-group"><label>OS Original *</label><input type="text" id="f-os1" placeholder="Ex: OS-2024-001" required/></div>
+          <div class="form-group"><label>Nova OS</label><input type="text" id="f-os2" placeholder="Ex: OS-2024-002"/></div>
+          <div class="form-group"><label>Data *</label><input type="date" id="f-dt" required/></div>
           <div class="form-group">
             <label>Setor da Perda *</label>
             <select id="f-setor" required>
@@ -258,15 +312,15 @@
               <option>Almoxarifado</option><option>Manutenção</option><option>Administrativo</option><option>Outro</option>
             </select>
           </div>
-          <div class="form-group"><label>Responsável pela Perda *</label><input type="text" id="f-responsavel" placeholder="Nome do colaborador" required/></div>
-          <div class="form-group"><label>Valor Perdido (R$) *</label><input type="number" id="f-valorPerdido" step="0.01" min="0" placeholder="0,00" required/></div>
-          <div class="form-group"><label>Despesas com Frete (R$)</label><input type="number" id="f-frete" step="0.01" min="0" placeholder="0,00"/></div>
-          <div class="form-group"><label>Valor Recebido do Cliente (R$)</label><input type="number" id="f-recebido" step="0.01" min="0" placeholder="0,00"/></div>
-          <div class="form-group full"><label>Observações</label><textarea id="f-obs" placeholder="Descreva detalhes da perda..."></textarea></div>
+          <div class="form-group"><label>Responsável pela Perda *</label><input type="text" id="f-resp" placeholder="Nome do colaborador" required/></div>
+          <div class="form-group"><label>Valor Perdido (R$) *</label><input type="number" id="f-vp" step="0.01" min="0" placeholder="0,00" required/></div>
+          <div class="form-group"><label>Despesas com Frete (R$)</label><input type="number" id="f-fr" step="0.01" min="0" placeholder="0,00"/></div>
+          <div class="form-group"><label>Valor Recebido do Cliente (R$)</label><input type="number" id="f-rc" step="0.01" min="0" placeholder="0,00"/></div>
+          <div class="form-group full"><label>Observações</label><textarea id="f-ob" placeholder="Descreva detalhes da perda..."></textarea></div>
           <div class="form-group full">
             <label>Anexo (PDF, imagem, doc)</label>
-            <input type="file" id="f-anexo" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"/>
-            <small style="color:var(--text-muted);font-size:.74rem;margin-top:4px">Máx 5MB — salvo no Firebase Storage</small>
+            <input type="file" id="f-file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"/>
+            <small style="color:var(--muted);font-size:.73rem;margin-top:4px">Máx 5MB — salvo no Firebase Storage</small>
           </div>
         </div>
         <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap">
@@ -332,7 +386,7 @@
       <div class="panel">
         <div class="report-header">
           <div class="panel-title" style="margin:0"><span class="dot"></span>Detalhamento</div>
-          <span style="font-size:.8rem;color:var(--text-muted)" id="rep-period"></span>
+          <span style="font-size:.8rem;color:var(--muted)" id="rep-period"></span>
         </div>
         <div class="table-wrap">
           <table>
@@ -348,15 +402,16 @@
 </main>
 
 <script type="module">
-import { initializeApp }             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, getDoc, doc, updateDoc, deleteDoc, query, orderBy, Timestamp }
-                                      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, doc,
+         updateDoc, deleteDoc, query, orderBy, Timestamp }
+                           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getStorage, ref as sRef, uploadBytes, getDownloadURL }
-                                      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
-                                      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+                           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+                           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-/* ── Config ── */
+/* ── Firebase ── */
 const app = initializeApp({
   apiKey:"AIzaSyCF1pSC4bzA_2xaUk9wT354aYkzwRCAMpc",
   authDomain:"perda-351be.firebaseapp.com",
@@ -365,19 +420,20 @@ const app = initializeApp({
   messagingSenderId:"1025498355930",
   appId:"1:1025498355930:web:a9ef5ca24d700d6bc12de3"
 });
-const db      = getFirestore(app);
-const storage = getStorage(app);
-const auth    = getAuth(app);
-const COLL    = "perdas";
+const db       = getFirestore(app);
+const storage  = getStorage(app);
+const auth     = getAuth(app);
+const provider = new GoogleAuthProvider();
+const COLL     = "perdas";
 
-/* ── Permissões por e-mail ── */
+/* ── Permissões ── */
 const ROLES = {
   'carolline.bhz@gmail.com':             'admin',
   'atacadoopticomg.financeiro@gmail.com':'operator'
 };
 const PERMS = {
-  admin:    {canAdd:true,  canEdit:true,  canDelete:true,  canReport:true},
-  operator: {canAdd:true,  canEdit:false, canDelete:false, canReport:true}
+  admin:    { canAdd:true,  canEdit:true,  canDelete:true  },
+  operator: { canAdd:true,  canEdit:false, canDelete:false }
 };
 
 let CU = null;   // currentUser
@@ -387,9 +443,9 @@ let CP = null;   // currentPerms
 const fmt     = v => (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const fmtDate = s => s ? new Date(s+'T12:00:00').toLocaleDateString('pt-BR') : '-';
 
-function toast(msg,type='success'){
-  const t = document.getElementById('toast');
-  const el = document.createElement('div');
+function toast(msg, type='success'){
+  const t=document.getElementById('toast');
+  const el=document.createElement('div');
   el.className=`toast-item ${type}`;
   el.textContent=msg;
   t.appendChild(el);
@@ -397,8 +453,10 @@ function toast(msg,type='success'){
 }
 
 function fld(label,value,full=false){
-  return `<div class="form-group${full?' full':''}"><label>${label}</label>
-    <div style="color:var(--text);font-size:.9rem;padding:8px 0">${value||'-'}</div></div>`;
+  return `<div class="form-group${full?' full':''}">
+    <label>${label}</label>
+    <div style="color:var(--text);font-size:.9rem;padding:8px 0">${value||'-'}</div>
+  </div>`;
 }
 
 /* ── Auth state ── */
@@ -408,7 +466,7 @@ onAuthStateChanged(auth, user => {
     CP = PERMS[ROLES[user.email]];
     showApp();
   } else {
-    if(user) signOut(auth).then(()=>toast('E-mail não autorizado.','error'));
+    if(user){ signOut(auth); showError('Conta Google não autorizada no sistema.'); }
     showLogin();
   }
 });
@@ -419,56 +477,60 @@ function showLogin(){
   document.getElementById('appMain').style.display='none';
 }
 
+function showError(msg){
+  const e=document.getElementById('loginErr');
+  e.textContent=msg; e.style.display='block';
+}
+
 function showApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('appHeader').style.display='flex';
   document.getElementById('appMain').style.display='block';
 
+  /* Chip: foto do Google ou fallback + badge de papel */
+  const wrap = document.getElementById('userPhotoWrap');
+  if(CU.photoURL){
+    wrap.innerHTML=`<img class="user-photo" src="${CU.photoURL}" alt="" referrerpolicy="no-referrer"/>`;
+  } else {
+    const initials = (CU.displayName||'U').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    wrap.innerHTML=`<div class="user-photo-fallback">${initials}</div>`;
+  }
+
   const role = ROLES[CU.email];
-  const av   = document.getElementById('userAvatar');
-  av.textContent = CU.email.substring(0,2).toUpperCase();
-  av.className   = 'user-avatar '+(role==='admin'?'av-admin':'av-op');
-  document.getElementById('userLabel').textContent = CU.email;
-  const rb = document.getElementById('userRole');
+  const rb   = document.getElementById('userRole');
   rb.textContent = role==='admin' ? 'Admin' : 'Operador';
   rb.className   = 'role-badge '+(role==='admin'?'rb-admin':'rb-op');
 
-  /* Desabilitar tab "Nova Perda" para quem não pode incluir */
-  const tabNew = document.getElementById('tab-new');
-  if(!CP.canAdd){ tabNew.disabled=true; tabNew.title='Sem permissão para incluir'; }
-  else           { tabNew.disabled=false; tabNew.title=''; }
+  /* Tab "Nova Perda" */
+  const tn=document.getElementById('tab-new');
+  tn.disabled = !CP.canAdd;
+  if(!CP.canAdd) tn.title='Sem permissão para incluir';
 
-  document.getElementById('f-data').valueAsDate = new Date();
+  document.getElementById('f-dt').valueAsDate=new Date();
   loadDashboard();
 }
 
-/* ── Login ── */
-window.doLogin = async function(){
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass  = document.getElementById('loginPassword').value;
-  const errEl = document.getElementById('loginError');
-  const btn   = document.getElementById('loginBtn');
+/* ── Google Login ── */
+window.doGoogleLogin = async function(){
+  const btn=document.getElementById('btnGoogle');
+  const errEl=document.getElementById('loginErr');
   errEl.style.display='none';
-
-  if(!email||!pass){ errEl.textContent='Preencha e-mail e senha.'; errEl.style.display='block'; return; }
-  if(!ROLES[email]){ errEl.textContent='E-mail não autorizado no sistema.'; errEl.style.display='block'; return; }
-
-  btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Entrando...';
+  btn.disabled=true; btn.textContent='Aguarde...';
   try{
-    await signInWithEmailAndPassword(auth,email,pass);
+    await signInWithPopup(auth, provider);
+    /* onAuthStateChanged cuida do resto */
   }catch(err){
-    let msg='E-mail ou senha incorretos.';
-    if(err.code==='auth/too-many-requests') msg='Muitas tentativas. Tente mais tarde.';
-    errEl.textContent=msg; errEl.style.display='block';
+    let msg='Erro ao fazer login com Google.';
+    if(err.code==='auth/popup-closed-by-user') msg='Login cancelado.';
+    if(err.code==='auth/popup-blocked') msg='Pop-up bloqueado pelo navegador. Permita pop-ups para este site.';
+    showError(msg);
   }finally{
-    btn.disabled=false; btn.innerHTML='<span>Entrar</span>';
+    btn.disabled=false;
+    btn.innerHTML=`<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Entrar com Google`;
   }
 };
 
 window.doLogout = ()=>signOut(auth).then(()=>toast('Sessão encerrada','info'));
-
-document.getElementById('loginPassword').addEventListener('keydown',e=>{ if(e.key==='Enter') window.doLogin(); });
-document.getElementById('loginEmail').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('loginPassword').focus(); });
 
 /* ── Nav ── */
 window.showPage = function(id){
@@ -489,7 +551,7 @@ document.getElementById('lossForm').addEventListener('submit', async e=>{
   if(!CP.canAdd){ toast('Sem permissão para incluir.','error'); return; }
   const btn=document.getElementById('submitBtn');
   btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Salvando...';
-  const file=document.getElementById('f-anexo').files[0];
+  const file=document.getElementById('f-file').files[0];
   let anexoUrl='',anexoNome='';
   try{
     if(file){
@@ -500,18 +562,18 @@ document.getElementById('lossForm').addEventListener('submit', async e=>{
       anexoNome=file.name;
     }
     await addDoc(collection(db,COLL),{
-      osOriginal:  document.getElementById('f-osOriginal').value.trim(),
-      osNova:      document.getElementById('f-osNova').value.trim(),
-      data:        document.getElementById('f-data').value,
+      osOriginal:  document.getElementById('f-os1').value.trim(),
+      osNova:      document.getElementById('f-os2').value.trim(),
+      data:        document.getElementById('f-dt').value,
       setor:       document.getElementById('f-setor').value,
-      responsavel: document.getElementById('f-responsavel').value.trim(),
-      valorPerdido:parseFloat(document.getElementById('f-valorPerdido').value)||0,
-      frete:       parseFloat(document.getElementById('f-frete').value)||0,
-      recebido:    parseFloat(document.getElementById('f-recebido').value)||0,
-      obs:         document.getElementById('f-obs').value.trim(),
+      responsavel: document.getElementById('f-resp').value.trim(),
+      valorPerdido:parseFloat(document.getElementById('f-vp').value)||0,
+      frete:       parseFloat(document.getElementById('f-fr').value)||0,
+      recebido:    parseFloat(document.getElementById('f-rc').value)||0,
+      obs:         document.getElementById('f-ob').value.trim(),
       anexoUrl, anexoNome,
-      criadoEm: Timestamp.now(),
-      criadoPor: CU.email
+      criadoEm:  Timestamp.now(),
+      criadoPor: CU.email          /* armazenado no DB, não exibido na UI */
     });
     toast('✅ Registro salvo com sucesso!');
     clearForm();
@@ -541,7 +603,7 @@ async function loadDashboard(){
       <td class="mono">${d.osOriginal||'-'}</td><td class="mono">${d.osNova||'-'}</td>
       <td>${fmtDate(d.data)}</td><td><span class="badge badge-s">${d.setor||'-'}</span></td>
       <td>${d.responsavel||'-'}</td>
-      <td style="color:var(--red-loss);font-weight:600">${fmt(d.valorPerdido)}</td>
+      <td style="color:var(--red);font-weight:600">${fmt(d.valorPerdido)}</td>
       <td><button class="btn btn-secondary" style="padding:4px 10px;font-size:.77rem" onclick="viewRecord('${d.id}')">👁 Ver</button></td>
     </tr>`).join('');
   }catch(err){ console.error(err); toast('Erro ao carregar dashboard','error'); }
@@ -563,25 +625,27 @@ window.loadRecords = async function(){
     if(ini)   docs=docs.filter(d=>d.data>=ini);
     if(fim)   docs=docs.filter(d=>d.data<=fim);
     if(!docs.length){ tb.innerHTML=`<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">🔍</div>Nenhum resultado</div></td></tr>`; return; }
-
     tb.innerHTML=docs.map(d=>`<tr>
       <td class="mono">${d.osOriginal||'-'}</td><td class="mono">${d.osNova||'-'}</td>
       <td>${fmtDate(d.data)}</td><td><span class="badge badge-s">${d.setor||'-'}</span></td>
       <td>${d.responsavel||'-'}</td>
-      <td style="color:var(--red-loss);font-weight:600">${fmt(d.valorPerdido)}</td>
+      <td style="color:var(--red);font-weight:600">${fmt(d.valorPerdido)}</td>
       <td style="color:var(--warning)">${fmt(d.frete)}</td>
       <td style="color:var(--success)">${fmt(d.recebido)}</td>
       <td>${d.anexoUrl?`<a class="attach-link" href="${d.anexoUrl}" target="_blank">📎 ${d.anexoNome||'Anexo'}</a>`:'-'}</td>
       <td style="display:flex;gap:6px;padding:8px 12px">
-        <button class="btn btn-secondary" style="padding:4px 8px;font-size:.74rem" onclick="viewRecord('${d.id}')">👁</button>
-        ${CP.canEdit   ?`<button class="btn btn-secondary" style="padding:4px 8px;font-size:.74rem" onclick="editRecord('${d.id}')">✏️</button>`:''}
-        ${CP.canDelete ?`<button class="btn btn-danger"    style="padding:4px 8px;font-size:.74rem" onclick="deleteRecord('${d.id}')">🗑</button>`:''}
+        <button class="btn btn-secondary" style="padding:4px 8px;font-size:.73rem" onclick="viewRecord('${d.id}')">👁</button>
+        ${CP.canEdit   ?`<button class="btn btn-secondary" style="padding:4px 8px;font-size:.73rem" onclick="editRecord('${d.id}')">✏️</button>`:''}
+        ${CP.canDelete ?`<button class="btn btn-danger"    style="padding:4px 8px;font-size:.73rem" onclick="deleteRecord('${d.id}')">🗑</button>`:''}
       </td>
     </tr>`).join('');
   }catch(err){ console.error(err); toast('Erro ao carregar','error'); }
 };
 
-window.clearFilters=function(){ ['r-setor','r-resp','r-ini','r-fim'].forEach(id=>document.getElementById(id).value=''); loadRecords(); };
+window.clearFilters=function(){
+  ['r-setor','r-resp','r-ini','r-fim'].forEach(id=>document.getElementById(id).value='');
+  loadRecords();
+};
 
 /* ── View ── */
 window.viewRecord = async function(id){
@@ -593,12 +657,10 @@ window.viewRecord = async function(id){
       ${fld('OS Original',d.osOriginal)}${fld('Nova OS',d.osNova)}
       ${fld('Data',fmtDate(d.data))}${fld('Setor',d.setor)}
       ${fld('Responsável',d.responsavel)}
-      ${fld('Valor Perdido',`<span style="color:var(--red-loss);font-weight:700">${fmt(d.valorPerdido)}</span>`)}
+      ${fld('Valor Perdido',`<span style="color:var(--red);font-weight:700">${fmt(d.valorPerdido)}</span>`)}
       ${fld('Frete',`<span style="color:var(--warning)">${fmt(d.frete)}</span>`)}
       ${fld('Recebido',`<span style="color:var(--success)">${fmt(d.recebido)}</span>`)}
       ${d.obs?fld('Observações',d.obs,true):''}
-      ${d.criadoPor?fld('Incluído por',d.criadoPor):''}
-      ${d.editadoPor?fld('Última edição por',d.editadoPor):''}
       ${d.anexoUrl?fld('Anexo',`<a class="attach-link" href="${d.anexoUrl}" target="_blank">📎 ${d.anexoNome||'Abrir'}</a>`):''}
     </div>`;
     document.getElementById('viewModal').classList.add('open');
@@ -657,7 +719,7 @@ window.saveEdit = async function(id){
 };
 window.closeEditModal=()=>document.getElementById('editModal').classList.remove('open');
 
-/* ── Delete (somente admin) ── */
+/* ── Delete ── */
 window.deleteRecord = async function(id){
   if(!CP.canDelete){ toast('Apenas o administrador pode excluir registros.','error'); return; }
   if(!confirm('Confirmar exclusão deste registro?\nEsta ação não pode ser desfeita.')) return;
@@ -692,24 +754,24 @@ window.generateReport = async function(){
     let tl=0,tf=0,tr=0;
     docs.forEach(d=>{tl+=d.valorPerdido||0;tf+=d.frete||0;tr+=d.recebido||0;});
     document.getElementById('rep-stats').innerHTML=`
-      <div class="stat-card loss"><div class="stat-label">Total Perdido</div><div class="stat-value sv-red">${fmt(tl)}</div></div>
-      <div class="stat-card freight"><div class="stat-label">Despesas Frete</div><div class="stat-value sv-yellow">${fmt(tf)}</div></div>
-      <div class="stat-card received"><div class="stat-label">Recebido do Cliente</div><div class="stat-value sv-green">${fmt(tr)}</div></div>
-      <div class="stat-card balance"><div class="stat-label">Saldo Líquido</div><div class="stat-value sv-orange">${fmt(tr-tl-tf)}</div></div>
+      <div class="stat-card loss"><div class="stat-label">Total Perdido</div><div class="stat-value sv-r">${fmt(tl)}</div></div>
+      <div class="stat-card freight"><div class="stat-label">Despesas Frete</div><div class="stat-value sv-y">${fmt(tf)}</div></div>
+      <div class="stat-card received"><div class="stat-label">Recebido do Cliente</div><div class="stat-value sv-g">${fmt(tr)}</div></div>
+      <div class="stat-card balance"><div class="stat-label">Saldo Líquido</div><div class="stat-value sv-o">${fmt(tr-tl-tf)}</div></div>
       <div class="stat-card count"><div class="stat-label">Registros</div><div class="stat-value">${docs.length}</div></div>`;
     document.getElementById('rep-period').textContent=`Período: ${fmtDate(ini)} a ${fmtDate(fim)}${setor?' | Setor: '+setor:''}`;
     document.getElementById('rep-tbody').innerHTML=docs.map((d,i)=>`<tr>
-      <td class="mono" style="color:var(--text-muted)">${i+1}</td>
+      <td class="mono" style="color:var(--muted)">${i+1}</td>
       <td>${fmtDate(d.data)}</td><td class="mono">${d.osOriginal||'-'}</td><td class="mono">${d.osNova||'-'}</td>
       <td><span class="badge badge-s">${d.setor||'-'}</span></td><td>${d.responsavel||'-'}</td>
-      <td style="color:var(--red-loss);font-weight:600">${fmt(d.valorPerdido)}</td>
+      <td style="color:var(--red);font-weight:600">${fmt(d.valorPerdido)}</td>
       <td style="color:var(--warning)">${fmt(d.frete)}</td>
       <td style="color:var(--success)">${fmt(d.recebido)}</td>
-      <td style="max-width:180px;white-space:normal;font-size:.79rem;color:var(--text-muted)">${d.obs||'-'}</td>
+      <td style="max-width:180px;white-space:normal;font-size:.78rem;color:var(--muted)">${d.obs||'-'}</td>
     </tr>`).join('');
     document.getElementById('rep-tfoot').innerHTML=`<tr style="border-top:2px solid var(--accent)">
-      <td colspan="6" style="padding:12px;text-align:right;color:var(--text-muted);font-size:.84rem">TOTAIS</td>
-      <td style="padding:12px;color:var(--red-loss)">${fmt(tl)}</td>
+      <td colspan="6" style="padding:12px;text-align:right;color:var(--muted);font-size:.83rem">TOTAIS</td>
+      <td style="padding:12px;color:var(--red)">${fmt(tl)}</td>
       <td style="padding:12px;color:var(--warning)">${fmt(tf)}</td>
       <td style="padding:12px;color:var(--success)">${fmt(tr)}</td>
       <td></td>
